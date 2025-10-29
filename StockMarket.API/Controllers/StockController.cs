@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StockMarket.API.Data;
 using StockMarket.API.Dtos.Stock;
+using StockMarket.API.Interfaces;
 using StockMarket.API.Mappers;
 
 namespace StockMarket.API.Controllers
@@ -11,26 +12,30 @@ namespace StockMarket.API.Controllers
     [ApiController]
     public class StockController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
+       
+        private readonly IStockRepository stockRepository;
 
-        public StockController(ApplicationDBContext _context)
+        public StockController(IStockRepository stockRepository)
         {
-            this._context = _context;
+            
+            this.stockRepository = stockRepository;
         }
 
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var stocks = await _context.Stocks.Select(s => s.ToStockDto()).ToListAsync();
+            var stocks = await stockRepository.GetAllAsync();
 
-            return Ok(stocks);
+            var stockDto = stocks.Select(s => s.ToStockDto());
+
+            return Ok(stockDto);
         }
 
         [HttpGet("{id}")]
         public async  Task<IActionResult> GetById([FromRoute] int id)
         {
-            var stock = await _context.Stocks.FindAsync(id);
+            var stock = await stockRepository.GetByIdAsync(id);
 
             if (stock is null)
             {
@@ -43,10 +48,11 @@ namespace StockMarket.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
+            // Convert to Stock Model from StockDTO
             var stockModel = stockDto.ToStockFromCreateDto();
 
-           await _context.Stocks.AddAsync(stockModel);
-           await _context.SaveChangesAsync();
+            // use the domain model to create the stock
+            await stockRepository.CreateAsync(stockModel);
 
             return CreatedAtAction(nameof(GetById), new { id = stockModel.Id }, stockModel.ToStockDto());
         }
@@ -55,21 +61,15 @@ namespace StockMarket.API.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
-            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+            // Convert update stock dto to stock model
+            var stockModel = updateDto.ToStockFromUpdateDto();
+
+           stockModel = await stockRepository.UpdateAsync(id, stockModel);
 
             if (stockModel is null)
             {
                 return NotFound();
             }
-
-            stockModel.Symbol = updateDto.Symbol;
-            stockModel.CompanyName = updateDto.CompanyName;
-            stockModel.Purchase = updateDto.Purchase;
-            stockModel.Industry = updateDto.Industry;
-            stockModel.LastDiv = updateDto.LastDiv;
-            stockModel.MarketCap = updateDto.MarketCap;
-
-           await _context.SaveChangesAsync();
 
             return Ok(stockModel.ToStockDto());
         }
@@ -78,15 +78,12 @@ namespace StockMarket.API.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+            var stockModel = await stockRepository.DeleteAsync(id);
 
             if (stockModel is null)
             {
                 return NotFound();
             }
-
-           _context.Stocks.Remove(stockModel);
-           await _context.SaveChangesAsync();
 
             return Ok(stockModel.ToStockDto());
         }
