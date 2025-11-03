@@ -27,6 +27,22 @@ namespace StockMarket.API.Repository
             return commentModal;
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var commentExist = await _context.Comments.FindAsync(id);
+
+            if (commentExist == null)
+            {
+                return false;
+            }
+
+            _context.Comments.Remove(commentExist);
+            await _context.SaveChangesAsync();
+
+            return true;
+
+        }
+
         public async Task<List<Comment>> GetAllAsync()
         {
             return await _context.Comments.ToListAsync();
