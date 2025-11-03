@@ -6,7 +6,9 @@ namespace StockMarket.API.Interfaces
     {
         Task<List<Comment>> GetAllAsync();
         Task<Comment?> GetByIdAsync(int id);
-
         Task<Comment> CreateAsync(Comment commentModal);
+        Task<bool> CommentExists(int id);
+
+        Task<Comment?> UpdateAsync(int id, Comment commentModal);
     }
 }
