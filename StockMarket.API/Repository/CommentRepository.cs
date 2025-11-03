@@ -14,6 +14,13 @@ namespace StockMarket.API.Repository
             this._context = context;
         }
 
+        public async Task<Comment> CreateAsync(Comment commentModal)
+        {
+            await _context.AddAsync(commentModal);
+            await _context.SaveChangesAsync();
+            return commentModal;
+        }
+
         public async Task<List<Comment>> GetAllAsync()
         {
             return await _context.Comments.ToListAsync();
