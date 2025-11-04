@@ -50,6 +50,12 @@ namespace StockMarket.API.Controllers
         [HttpPost("{stockId:int}")]
         public async Task<IActionResult> Create([FromRoute] int stockId, [FromBody] CreateCommentDto commentDto)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+
             var stockIdExists = await stockRepository.StockExists(stockId);
 
             if (!stockIdExists)
@@ -68,6 +74,11 @@ namespace StockMarket.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCommentRequestDto commentDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var commentModal = commentDto.ToCommentFromUpdateDto();
 
             var comment = await _commentRepository.UpdateAsync(id, commentModal);
@@ -84,7 +95,12 @@ namespace StockMarket.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-          var commentModel =  await _commentRepository.DeleteAsync(id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var commentModel =  await _commentRepository.DeleteAsync(id);
 
             if(!commentModel)
             {

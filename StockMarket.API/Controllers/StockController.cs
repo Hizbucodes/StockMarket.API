@@ -48,6 +48,12 @@ namespace StockMarket.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             // Convert to Stock Model from StockDTO
             var stockModel = stockDto.ToStockFromCreateDto();
 
@@ -61,6 +67,11 @@ namespace StockMarket.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             // Convert update stock dto to stock model
             var stockModel = updateDto.ToStockFromUpdateDto();
 
@@ -78,6 +89,12 @@ namespace StockMarket.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var stockModel = await stockRepository.DeleteAsync(id);
 
             if (stockModel is null)
