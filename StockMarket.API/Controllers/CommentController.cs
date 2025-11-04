@@ -34,7 +34,7 @@ namespace StockMarket.API.Controllers
 
 
         [HttpGet]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var comment = await _commentRepository.GetByIdAsync(id);
@@ -47,7 +47,7 @@ namespace StockMarket.API.Controllers
             return Ok(comment.ToCommentDto());
         }
 
-        [HttpPost("{stockId}")]
+        [HttpPost("{stockId:int}")]
         public async Task<IActionResult> Create([FromRoute] int stockId, [FromBody] CreateCommentDto commentDto)
         {
             var stockIdExists = await stockRepository.StockExists(stockId);
@@ -65,7 +65,7 @@ namespace StockMarket.API.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCommentRequestDto commentDto)
         {
             var commentModal = commentDto.ToCommentFromUpdateDto();
@@ -81,7 +81,7 @@ namespace StockMarket.API.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
           var commentModel =  await _commentRepository.DeleteAsync(id);
