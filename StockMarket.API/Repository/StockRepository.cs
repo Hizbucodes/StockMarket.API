@@ -39,9 +39,26 @@ namespace StockMarket.API.Repository
             return existingStockModel;
         }
 
-        public async Task<List<Stock>> GetAllAsync()
+        public async Task<List<Stock>> GetAllAsync(string? filterOn = null, string? filterQuery = null)
         {
-            return await _context.Stocks.Include(c => c.Comments).ToListAsync();
+            var stocks = _context.Stocks.Include(c => c.Comments).AsQueryable();
+
+            // Filtering
+            if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
+            {
+                if (filterOn.Equals("CompanyName", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = stocks.Where(s => s.CompanyName.Contains(filterQuery));
+                }
+
+                if(filterOn.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = stocks.Where(s => s.Symbol.Contains(filterQuery));
+                }
+            }
+
+
+            return await stocks.ToListAsync();
         }
 
         public async Task<Stock?> GetByIdAsync(int id)

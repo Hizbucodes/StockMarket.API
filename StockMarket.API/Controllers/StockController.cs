@@ -23,9 +23,9 @@ namespace StockMarket.API.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery)
         {
-            var stocks = await stockRepository.GetAllAsync();
+            var stocks = await stockRepository.GetAllAsync(filterOn, filterQuery);
 
             var stockDto = stocks.Select(s => s.ToStockDto());
 
@@ -89,12 +89,7 @@ namespace StockMarket.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
+            
             var stockModel = await stockRepository.DeleteAsync(id);
 
             if (stockModel is null)
