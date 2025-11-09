@@ -23,9 +23,9 @@ namespace StockMarket.API.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery)
+        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery, [FromQuery] string? sortBy, [FromQuery] bool? isAscending)
         {
-            var stocks = await stockRepository.GetAllAsync(filterOn, filterQuery);
+            var stocks = await stockRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending ?? true);
 
             var stockDto = stocks.Select(s => s.ToStockDto());
 

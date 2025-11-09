@@ -39,7 +39,7 @@ namespace StockMarket.API.Repository
             return existingStockModel;
         }
 
-        public async Task<List<Stock>> GetAllAsync(string? filterOn = null, string? filterQuery = null)
+        public async Task<List<Stock>> GetAllAsync(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true)
         {
             var stocks = _context.Stocks.Include(c => c.Comments).AsQueryable();
 
@@ -54,6 +54,18 @@ namespace StockMarket.API.Repository
                 if(filterOn.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
                 {
                     stocks = stocks.Where(s => s.Symbol.Contains(filterQuery));
+                }
+            }
+
+            // Sorting
+            if(string.IsNullOrWhiteSpace(sortBy) == false)
+            {
+                if(sortBy.Equals("CompanyName", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = isAscending ? stocks.OrderBy(s => s.CompanyName) : stocks.OrderByDescending(s => s.CompanyName);
+                }else if(sortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = isAscending ? stocks.OrderBy(s => s.Symbol) : stocks.OrderByDescending(s => s.Symbol);
                 }
             }
 
