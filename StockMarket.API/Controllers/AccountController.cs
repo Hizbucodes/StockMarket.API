@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StockMarket.API.Dtos.Account;
+using StockMarket.API.Interfaces;
 using StockMarket.API.Models;
 
 namespace StockMarket.API.Controllers
@@ -11,10 +12,11 @@ namespace StockMarket.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-
-        public AccountController(UserManager<AppUser> userManager)
+        private readonly ITokenService _tokenService;
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService)
         {
             this._userManager = userManager;
+            this._tokenService = tokenService;
         }
 
 
@@ -42,7 +44,14 @@ namespace StockMarket.API.Controllers
 
                     if (roleResult.Succeeded)
                     {
-                        return Ok("User Created");
+                        return Ok(
+                            new NewUserDto
+                            {
+                                UserName = appUser.UserName,
+                                Email = appUser.Email,
+                                Token = _tokenService.CreateToken(appUser)
+                            }
+                            );
                     }
                     else
                     {
