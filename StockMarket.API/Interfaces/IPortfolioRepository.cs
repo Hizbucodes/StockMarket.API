@@ -1,0 +1,9 @@
+﻿using StockMarket.API.Models;
+
+namespace StockMarket.API.Interfaces
+{
+    public interface IPortfolioRepository
+    {
+        Task<List<Stock>> GetUserPortfolio(AppUser user);
+    }
+}

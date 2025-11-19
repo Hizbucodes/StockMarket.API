@@ -16,6 +16,22 @@ namespace StockMarket.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Portfolio>(x => x.HasKey(p => new
+            {
+                p.AppUserId,
+                p.StockId
+            }));
+
+            modelBuilder.Entity<Portfolio>()
+                .HasOne(u => u.AppUser)
+                .WithMany(u => u.Portfolios)
+                .HasForeignKey(u => u.AppUserId);
+
+            modelBuilder.Entity<Portfolio>()
+                .HasOne(u => u.Stock)
+                .WithMany(u => u.Portfolios)
+                .HasForeignKey(u => u.StockId);
+
             var adminRole = "e20a8cdc-7a9c-4963-a079-913ae8c05b62";
             var userRole = "553baeee-a640-4cd6-b1f2-dc73826f3df6";
 
@@ -47,7 +63,6 @@ namespace StockMarket.API.Data
 
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Comment> Comments { get; set; }
-
-     
+        public DbSet<Portfolio> Portfolios { get; set; }
     }
 }
