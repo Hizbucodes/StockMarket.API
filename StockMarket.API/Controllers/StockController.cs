@@ -29,7 +29,7 @@ namespace StockMarket.API.Controllers
         {
             var stocks = await stockRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending ?? true, pageNumber, pageSize);
 
-            var stockDto = stocks.Select(s => s.ToStockDto());
+            var stockDto = stocks.Select(s => s.ToStockDto()).ToList();
 
             return Ok(stockDto);
         }

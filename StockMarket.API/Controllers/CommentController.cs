@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StockMarket.API.Dtos.Comment;
+using StockMarket.API.Extensions;
 using StockMarket.API.Interfaces;
 using StockMarket.API.Mappers;
+using StockMarket.API.Models;
 using StockMarket.API.Repository;
 
 namespace StockMarket.API.Controllers
@@ -14,11 +17,12 @@ namespace StockMarket.API.Controllers
     {
         private readonly ICommentRepository _commentRepository;
         private readonly IStockRepository stockRepository;
-
-        public CommentController(ICommentRepository commentRepository, IStockRepository stockRepository)
+        private readonly UserManager<AppUser> userManager;
+        public CommentController(ICommentRepository commentRepository, IStockRepository stockRepository, UserManager<AppUser> userManager)
         {
             this._commentRepository = commentRepository;
             this.stockRepository = stockRepository;
+            this.userManager = userManager;
         }
 
 
@@ -63,7 +67,14 @@ namespace StockMarket.API.Controllers
                 return BadRequest("Stock does not exist");
             }
 
+            var username = User.GetUsername();
+
+            var appUser = await userManager.FindByNameAsync(username);
+
+
             var commentModal = commentDto.ToCommentFromCreateDto(stockId);
+
+            commentModal.AppUserId = appUser.Id;
 
             await _commentRepository.CreateAsync(commentModal);
 
